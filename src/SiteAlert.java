@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -225,11 +226,11 @@ public class SiteAlert
       HttpURLConnection http = (HttpURLConnection)urli.openConnection();
       http.setUseCaches(false);
       int risposta = http.getResponseCode();
-      if (risposta == 404)
+      if (risposta == HttpURLConnection.HTTP_NOT_FOUND)
       {
         System.out.println("This page doesn't exist!");
       }
-      else if (risposta == 200)
+      else if (risposta == HttpURLConnection.HTTP_OK)
       {
         String path = findHome() + "/SiteAlert/" + nomeSito;
         File f = new File(path);
@@ -255,6 +256,10 @@ public class SiteAlert
     catch (MalformedURLException e)
     {
       System.out.println("There is an error with the link!");
+    }
+    catch (UnknownHostException e)
+    {
+        System.out.println("This site doesn't exist!");
     }
   }
 }
