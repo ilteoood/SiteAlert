@@ -30,5 +30,3 @@ THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 TODO list:
 - Periodical check
-- Default choice
-- Possibility to send an email when it find a change
