@@ -1,4 +1,7 @@
 /*
+
+SiteAlert, what are you waiting for?
+
 Copyright (c) 2013, Matteo Pietro Dazzi <---> ilteoood
 All rights reserved.
 
@@ -42,126 +45,144 @@ import java.util.Scanner;
 
 public class SiteAlert
 {
-  public static void main(String[] args)
-    throws IOException
+  @SuppressWarnings("empty-statement")
+  public static void main(String[] args) throws IOException
   {
+    String separator=separator();
     Scanner sc = new Scanner(System.in);
     int x = choice();
-    while (x != 4)
+    while(x<4)
     {
-      if (x == 1)
-      {
-        clearScreen();
-        addSite(null, null);
-      }
-      else if (x == 2)
-      {
-        String[] dirs=findDirs();
-        String path = findHome() + "/SiteAlert/";
-        BufferedReader br;
-        File f;
-        URL urli = null;
-        HttpURLConnection http = null;
-        if(dirs.length!=0)
+        switch(x)
         {
-            for (String dir : dirs)
-            {
-              String pathModificata = path + dir + "/sito.txt";
-              try
-              {
-                f = new File(pathModificata);
-                br = new BufferedReader(new FileReader(f));
-                String sito = br.readLine();
-                String contenutoLocale = br.readLine();
-                urli = new URL(sito);
-                http = (HttpURLConnection)urli.openConnection();
-                br = new BufferedReader(new InputStreamReader(http.getInputStream()));
-                String contenutoRemoto = br.readLine();
-                if (contenutoRemoto.equals(contenutoLocale)) 
-                  System.out.println("The site \"" + dir + "\" hasn't been changed!");
-                else 
+            case 1:
+                clearScreen();
+                addSite(null, null,separator);
+                break;
+            case 2:
+                String[] dirs=findDirs(separator);
+                String path = findHome() + separator+"SiteAlert"+separator;
+                BufferedReader br;
+                File f;
+                URL urli = null;
+                HttpURLConnection http = null;
+                if(dirs.length!=0)
                 {
-                  System.out.println("The site \"" + dir + "\" has been changed!\nDo you want to update the local file? (y/n)");
-                  while (((contenutoLocale = sc.nextLine()).length() == 0) || ((contenutoLocale.charAt(0) != 'n') && (contenutoLocale.charAt(0) != 'y')))
-                    System.out.println("Wrong input, do you want to update the local file? (y/n)");
-                  char c = contenutoLocale.charAt(0);
-                  if (c == 'y')
-                    addSite(sito, dir);
+                    for (String dir : dirs)
+                    {
+                      String pathModificata = path + dir + separator+"sito.txt";
+                      try
+                      {
+                        f = new File(pathModificata);
+                        br = new BufferedReader(new FileReader(f));
+                        String sito = br.readLine();
+                        StringBuffer lc=new StringBuffer();
+                        String contenutoLocale;
+                        while((contenutoLocale = br.readLine())!=null)
+                            lc.append(contenutoLocale);
+                        contenutoLocale=lc.toString();
+                        urli = new URL(sito);
+                        http = (HttpURLConnection)urli.openConnection();
+                        br = new BufferedReader(new InputStreamReader(http.getInputStream()));
+                        String contenutoRemoto;
+                        StringBuffer rc=new StringBuffer();
+                        while((contenutoRemoto = br.readLine())!=null)
+                                rc.append(contenutoRemoto);
+                        contenutoRemoto=rc.toString();
+                        if (contenutoLocale.equals(contenutoRemoto)) 
+                          System.out.println("The site \"" + dir + "\" hasn't been changed!");
+                        else 
+                        {
+                            System.out.println("The site \"" + dir + "\" has been changed!\nDo you want to update your local file?(Y/n)");
+                            while ((contenutoLocale=sc.nextLine()).length()==0 || ((contenutoLocale.charAt(0) != 'n') && (contenutoLocale.charAt(0) != 'y')))
+                            {
+                                if(contenutoLocale.length()==0)
+                                {
+                                    contenutoLocale="y";
+                                    break;
+                                }
+                                else
+                                    System.out.println("Wrong input, do you want to update the local file? (Y/n)");
+                            }
+                            char c = contenutoLocale.charAt(0);
+                            if (c == 'y')
+                              addSite(sito, dir,separator);
+                        }
+                      }
+                      catch (IOException e)
+                      {
+                        pathModificata = path + dir;
+                        f = new File(pathModificata);
+                        f.delete();
+                      }
+                    }
+                    System.out.print("Press enter to continue...");
+                    sc.nextLine();
                 }
-                System.out.print("Press enter to continue...");
-                sc.nextLine();
-              }
-              catch (IOException e)
-              {
-                pathModificata = path + dir;
-                f = new File(pathModificata);
-                f.delete();
-              }
-            }
+                else
+                    System.out.println("You haven't checked any site!");
+                break;
+            case 3:
+                clearScreen();
+                dirs = findDirs(separator);
+                int length=dirs.length,i=0;
+                if(length!=0)
+                {
+                    for(i=0;i<length;i++)
+                        System.out.println((i+1)+") "+dirs[i]);
+                    sc=new Scanner(System.in);
+                    do
+                    {
+                        System.out.print("Number of the site: ");
+                        try
+                        {
+                            i=sc.nextInt();
+                        }
+                        catch(InputMismatchException e)
+                        {
+                            sc=new Scanner(System.in);
+                            i=0;
+                        }
+                    }
+                    while(i<1 || i>length);
+                    path=findHome()+separator+"SiteAlert"+separator+dirs[i-1];
+                    f=new File(path);
+                    if(f.delete())
+                        System.out.println("Site successfully deleted!");
+                    else
+                    {
+                        String[] content=f.list();
+                        for(String s:content)
+                        {
+                            f=new File(path+separator+s);
+                            f.delete();
+                        }
+                        f=new File(path);
+                        if(f.delete())
+                            System.out.println("Site successfully deleted!");
+                        else
+                            System.out.println("Something went wrong");
+                    }
+                }
+                else
+                    System.out.println("You haven't checked any site!");
+                break;
         }
-        else
-            System.out.println("You haven't checked any site!");
-      }
-      else if(x==3)
-      {
-          clearScreen();
-          String dirs[]=findDirs();
-          int length=dirs.length,i=0;
-          if(length!=0)
-          {
-              for(i=0;i<length;i++)
-                  System.out.println((i+1)+") "+dirs[i]);
-              sc=new Scanner(System.in);
-              do
-              {
-                  System.out.print("Number of the site: ");
-                  try
-                  {
-                      i=sc.nextInt();
-                  }
-                  catch(InputMismatchException e)
-                  {
-                      sc=new Scanner(System.in);
-                      i=0;
-                  }
-              }
-              while(i<1 || i>length);
-              String path=findHome()+"/SiteAlert/"+dirs[i-1];
-              File f=new File(path);
-              if(f.delete())
-                  System.out.println("Site successfully deleted!");
-              else
-              {
-                  String[] content=f.list();
-                  for(String s:content)
-                  {
-                      f=new File(path+"/"+s);
-                      f.delete();
-                  }
-                  f=new File(path);
-                  if(f.delete())
-                      System.out.println("Site successfully deleted!");
-                  else
-                      System.out.println("Something went wrong");
-              }
-          }
-          else
-              System.out.println("You haven't checked any site!");
-      }
-      x = choice();
+        x = choice();
     }
+    clearScreen();
   }
-
   public static void clearScreen() throws IOException
   {
-    String clearCommand;
-    if (System.getProperty("os.name").contains("Windows"))
-        clearCommand="cls";
+    if (!System.getProperty("os.name").contains("Windows"))
+    {
+        Process p=Runtime.getRuntime().exec("clear");
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        System.out.println(br.readLine());
+    }
     else
-        clearCommand="clear";
-    Process p=Runtime.getRuntime().exec(clearCommand);
-    BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-    System.out.println(br.readLine());
+        for(int i=0;i<100;i++)
+            System.out.println();
   }
   public static int choice() throws IOException 
   {
@@ -175,31 +196,26 @@ public class SiteAlert
           visualizeMenu();
       return x;
     }
-    catch (Exception e)
+    catch (IOException e)
     {
       clearScreen();
       System.out.println("Wrong input");
       return 4;
     }
   }
-
   public static void visualizeMenu() throws IOException
   {
       clearScreen();
-      System.out.println("What do you want to do?");
-      System.out.println("1) Add a new site to check");
-      System.out.println("2) Check sites");
-      System.out.println("3) Delete a site");
-      System.out.println("4) Exit");
+      System.out.println("What do you want to do?\n1) Add new site to check\n2) Check sites\n3) Delete a site\n4) Exit");
   }
 
   public static String findHome() throws IOException 
   {
     return System.getProperty("user.home");
   }
-  public static String[] findDirs() throws IOException
+  public static String[] findDirs(String s) throws IOException
   {
-        String path = findHome() + "/SiteAlert/";
+        String path = findHome() + s+"SiteAlert"+s;
         File f = new File(path);
         if(!f.exists())
             f.mkdir();
@@ -207,9 +223,9 @@ public class SiteAlert
         String[] dirs = f.list();
         return dirs;
   }
-  public static void addSite(String site, String nameSite) throws IOException 
+  public static void addSite(String site, String nameSite,String s) throws IOException 
   {
-    String sito = site; String nomeSito = nameSite;
+    String sito = site, nomeSito = nameSite;
     if ((sito == null) && (nomeSito == null))
     {
       Scanner sc = new Scanner(System.in);
@@ -231,30 +247,44 @@ public class SiteAlert
       }
       else if (risposta == 200)
       {
-        String path = findHome() + "/SiteAlert/" + nomeSito;
+        String path = findHome() + s+"SiteAlert"+s + nomeSito;
         File f = new File(path);
         if (!f.isDirectory())
+        {
           if (!f.mkdirs())
             System.out.println("I can't create the necessary directory!");
-        else
-        {
-          path = path + "/sito.txt";
-          f = new File(path);
-          if (f.exists())
-            f.delete();
-          FileWriter fw = new FileWriter(f);
-          fw.write(sito + "\n");
-          BufferedReader br = new BufferedReader(new InputStreamReader(http.getInputStream()));
-          while ((sito = br.readLine()) != null)
-            fw.write(sito + "\n");
-          fw.flush();
-          fw.close();
+          else
+            saveFile(path + s+"sito.txt",sito,http);
         }
+        else if(site ==null && nameSite==null)
+            System.out.println("Name already used!");
+        else
+            saveFile(path + s+"sito.txt",sito,http);
       }
     }
     catch (MalformedURLException e)
     {
       System.out.println("There is an error with the link!");
     }
+  }
+  public static void saveFile(String path,String sito,HttpURLConnection http) throws IOException
+  {
+            File f = new File(path);
+            if (f.exists())
+                f.delete();
+            FileWriter fw = new FileWriter(f);
+            fw.write(sito + "\n");
+            BufferedReader br = new BufferedReader(new InputStreamReader(http.getInputStream()));
+            while ((sito = br.readLine()) != null)
+                fw.write(sito + "\n");
+            fw.flush();
+            fw.close();
+  }
+  public static String separator()
+  {
+      if(System.getProperty("os.name").contains("Windows"))
+          return "\\";
+      else
+          return "/";
   }
 }
