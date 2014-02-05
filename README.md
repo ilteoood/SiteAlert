@@ -4,6 +4,7 @@ SiteAlert
 SiteAlert, what are you waiting for?
 
 Copyright (c) 2013, Matteo Pietro Dazzi <---> ilteoood
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided
@@ -30,3 +31,4 @@ THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 TODO list:
 - Periodical check
 - Default choice
+- Possibility to send an email when it find a change
