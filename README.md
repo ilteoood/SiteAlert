@@ -1,7 +1,10 @@
-SiteAlert
+SiteAlert, what are you waiting for?
 =========
 
-SiteAlert, what are you waiting for?
+With this application you can monitor the change of one or more web pages.
+Also, with the latest version, it can send an email when there is a change.
+
+___________________
 
 Copyright (c) 2013, Matteo Pietro Dazzi <---> ilteoood
 
