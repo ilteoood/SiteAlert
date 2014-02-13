@@ -25,11 +25,6 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================================================================
-
-TODO list:
-- Periodical check
-- Default choice
-
 */
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,6 +41,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 //IMPORT FOR THE MAIL
 import java.util.Properties;
+import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -61,6 +57,7 @@ public class SiteAlert
   public static void main(String[] args) throws IOException
   {
     final String separator=separator();
+    final String[] s=new String[1];
     Scanner sc = new Scanner(System.in);
     int x = choice();
     while(x<4)
@@ -73,33 +70,34 @@ public class SiteAlert
                 break;
             case 2:
                 System.out.println("Do you want to check continually? (Y/n)");
-                String s;
-                while ((s=sc.nextLine()).length()==0 || ((s.charAt(0) != 'n') && (s.charAt(0) != 'y')))
+                while ((s[0]=sc.nextLine()).length()==0 || ((s[0].charAt(0) != 'n') && (s[0].charAt(0) != 'y')))
                 {
-                    if(s.length()==0)
+                    if(s[0].length()==0)
                     {
-                        s="y";
+                        s[0]="y";
                         break;
                     }
                     else
                         System.out.println("Wrong input, do you want to check continually? (Y/n)");
                 }
-                if (s.charAt(0) == 'y')
+                final Timer t=new Timer();
+                t.scheduleAtFixedRate(new TimerTask()
                 {
-                    Timer t=new Timer();
-                    t.scheduleAtFixedRate(new TimerTask()
+                    @Override
+                    public void run()
                     {
-                        @Override
-                        public void run()
+                        try
                         {
-                            try
-                            {checkSite(separator," ");}
-                            catch(IOException e){}
-                        } 
-                    },0,30000);
-                }
-                else
-                    checkSite(separator,"");
+                            if(checkSite(separator," ") || !s[0].equals("y"))
+                            {
+                                t.cancel();
+                                t.purge();
+                                s[0]="n";
+                            }
+                        }
+                        catch(IOException e){} 
+                    }
+                },0,30000);
                 break;
             case 3:
                 clearScreen();
@@ -107,6 +105,7 @@ public class SiteAlert
                 int length=dirs.length,i=0;
                 if(length!=0)
                 {
+                    System.out.println("Write the number of the site that you want to delete.");
                     for(i=0;i<length;i++)
                         System.out.println((i+1)+") "+dirs[i]);
                     sc=new Scanner(System.in);
@@ -147,6 +146,8 @@ public class SiteAlert
                     System.out.println("You haven't checked any site!");
                 break;
         }
+        while(s[0]!=null && s[0].equals("y")){}
+        waitUser();
         x = choice();
     }
     clearScreen();
@@ -187,7 +188,6 @@ public class SiteAlert
       clearScreen();
       System.out.println("What do you want to do?\n1) Add new site to check\n2) Check sites\n3) Delete a site\n4) Exit");
   }
-
   public static String findHome() throws IOException 
   {
     return System.getProperty("user.home");
@@ -213,7 +213,7 @@ public class SiteAlert
       sito = sc.nextLine();
       System.out.println("Insert a name for the site: ");
       nomeSito = sc.nextLine();
-      System.out.println("Insert an email where you want to be informed: ");
+      System.out.println("Insert the email where you want to be informed: (if you want to add other mail, separate them with \";\")");
       email = sc.nextLine();
     }
     try
@@ -222,11 +222,11 @@ public class SiteAlert
       HttpURLConnection http = (HttpURLConnection)urli.openConnection();
       http.setUseCaches(false);
       int risposta = http.getResponseCode();
-      if (risposta == 404)
+      if (risposta == HttpURLConnection.HTTP_NOT_FOUND)
       {
         System.out.println("This page doesn't exist!");
       }
-      else if (risposta == 200)
+      else if (risposta == HttpURLConnection.HTTP_OK)
       {
         String path = findHome() + s+"SiteAlert"+s + nomeSito;
         File f = new File(path);
@@ -248,7 +248,7 @@ public class SiteAlert
       System.out.println("There is an error with the link!");
     }
   }
-  public static void checkSite(String separator,String s) throws IOException
+  public static boolean checkSite(String separator,String s) throws IOException
   {
       String[] dirs=findDirs(separator);
       String path = findHome() + separator+"SiteAlert"+separator;
@@ -286,7 +286,7 @@ public class SiteAlert
                       System.out.println("The site \"" + dir + "\" has been changed!");
                       if(s.equals(""))
                       {
-                          System.out.println("Do you want to update your local file?(Y/n)");
+                          System.out.println("Do you want to update your local file? (Y/n)");
                           while ((contenutoLocale=sc.nextLine()).length()==0 || ((contenutoLocale.charAt(0) != 'n') && (contenutoLocale.charAt(0) != 'y')))
                           {
                               if(contenutoLocale.length()==0)
@@ -320,14 +320,13 @@ public class SiteAlert
                   f.delete();
               }
           }
-          if(s.equals(""))
-          {
-            System.out.print("Press enter to continue...");
-            sc.nextLine();
-          }
       }
       else
+      {
           System.out.println("You haven't checked any site!");
+          return true;
+      }
+      return false;
   }
   public static void saveFile(String path,String sito,String mail,HttpURLConnection http) throws IOException
   {
@@ -342,6 +341,7 @@ public class SiteAlert
                 fw.write(sito + "\n");
             fw.flush();
             fw.close();
+            System.out.println("Site saved correctly!");
   }
   public static String separator()
   {
@@ -360,11 +360,24 @@ public class SiteAlert
       try 
       {
           m.setFrom(new InternetAddress("SiteAlert@gmail.it")); //DON'T CHANGE IT
-          m.setRecipient(RecipientType.TO, new InternetAddress(to));
+          String[] toArray=to.split(";");
+          Address[] a=new Address[toArray.length];
+          int i=0;
+          for(String toSingle:toArray)
+          {
+              a[i++]=new InternetAddress(toSingle);
+          }
+          m.setRecipients(RecipientType.TO, a);
           m.setSubject("The site \""+subject+"\" has been changed!");
           m.setText("The site \""+subject+"\" has been changed!");
           Transport.send(m);
       }
       catch (MessagingException e) {}
+  }
+  public static void waitUser()
+  {
+      Scanner sc=new Scanner(System.in);
+      System.out.println("Press enter to continue...");
+      sc.nextLine();
   }
 }
