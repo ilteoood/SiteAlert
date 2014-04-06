@@ -42,11 +42,13 @@ import java.util.TimerTask;
 //IMPORT FOR THE MAIL
 import java.util.Properties;
 import javax.mail.Address;
+import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.Message.RecipientType;
+import javax.mail.PasswordAuthentication;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -305,7 +307,7 @@ public class SiteAlert
                       {
                           addSite(sito, dir,mail,separator);
                           try
-                          {sendMail(mail,dir);}
+                          {sendMail(mail,dir,sito);}
                           catch(AddressException e)
                           {
                               System.out.println("Error with the e-mail destination address.");
@@ -350,16 +352,26 @@ public class SiteAlert
       else
           return "/";
   }
-  public static void sendMail(String to, String subject) throws AddressException
+  public static void sendMail(String to, String subject, String sito) throws AddressException
   {
       Properties p = new Properties();
-      p.put("mail.smtp.host", "smtp.net.vodafone.it");
-      p.put("mail.smtp.port", "25");
-      Session s = Session.getDefaultInstance(p);
+	  //Don't change it if you want to use gmail
+      p.put("mail.smtp.host", "smtp.gmail.com");
+      p.put("mail.smtp.port", "587");
+      p.put("mail.smtp.auth","true");
+      p.put("mail.smtp.starttls.enable", "true");
+      Authenticator authenticator = new Authenticator () 
+      {
+	public PasswordAuthentication getPasswordAuthentication()
+        {
+		return new PasswordAuthentication(e-MailAddress ,e-MailPassword);
+	}
+      };
+      Session s = Session.getDefaultInstance( p , authenticator); 
       Message m = new MimeMessage(s);
       try 
       {
-          m.setFrom(new InternetAddress("SiteAlert@gmail.it")); //DON'T CHANGE IT
+          m.setFrom(new InternetAddress(sourceE-MailAddress)); //DON'T CHANGE IT
           String[] toArray=to.split(";");
           Address[] a=new Address[toArray.length];
           int i=0;
@@ -369,7 +381,7 @@ public class SiteAlert
           }
           m.setRecipients(RecipientType.TO, a);
           m.setSubject("The site \""+subject+"\" has been changed!");
-          m.setText("The site \""+subject+"\" has been changed!");
+          m.setText("The site \""+subject+"\" has been changed!\nLink: "+sito);
           Transport.send(m);
       }
       catch (MessagingException e) {}

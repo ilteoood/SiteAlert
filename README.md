@@ -1,13 +1,9 @@
-SiteAlert, what are you waiting for?
+SiteAlert
 =========
 
-With this application you can monitor the change of one or more web pages.
-Also, with the latest version, it can send an email when there is a change.
-
-___________________
+SiteAlert, what are you waiting for?
 
 Copyright (c) 2013, Matteo Pietro Dazzi <---> ilteoood
-
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided
@@ -30,3 +26,5 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------
+
+Attention: if you want to use this software, you MUST modify some parameters inside the SiteAlert.java in the src folder.
