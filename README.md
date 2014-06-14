@@ -27,4 +27,6 @@ THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------
 
-Attention: if you want to use this software, you MUST modify some parameters inside the SiteAlert.java in the src folder.
+TODO list:
+- Periodical check
+- Default choice

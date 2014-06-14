@@ -56,10 +56,10 @@ import javax.mail.internet.MimeMessage;
 public class SiteAlert
 {
   @SuppressWarnings("empty-statement")
-  public static void main(String[] args) throws IOException
+  public static void main(String[] args) throws IOException, InterruptedException
   {
     final String separator=separator();
-    final String[] s=new String[1];
+    String s=new String();
     Scanner sc = new Scanner(System.in);
     int x = choice();
     while(x<4)
@@ -72,34 +72,26 @@ public class SiteAlert
                 break;
             case 2:
                 System.out.println("Do you want to check continually? (Y/n)");
-                while ((s[0]=sc.nextLine()).length()==0 || ((s[0].charAt(0) != 'n') && (s[0].charAt(0) != 'y')))
+                while ((s=sc.nextLine()).length()==0 || ((s.charAt(0) != 'n') && (s.charAt(0) != 'y')))
                 {
-                    if(s[0].length()==0)
+                    if(s.length()==0)
                     {
-                        s[0]="y";
+                        s="y";
                         break;
                     }
                     else
                         System.out.println("Wrong input, do you want to check continually? (Y/n)");
                 }
-                final Timer t=new Timer();
-                t.scheduleAtFixedRate(new TimerTask()
+                while(true)
                 {
-                    @Override
-                    public void run()
+                    if(checkSite(separator," ") || !s.equals("y"))
                     {
-                        try
-                        {
-                            if(checkSite(separator," ") || !s[0].equals("y"))
-                            {
-                                t.cancel();
-                                t.purge();
-                                s[0]="n";
-                            }
-                        }
-                        catch(IOException e){} 
+                                s="n";
+                                break;
                     }
-                },0,30000);
+                    else
+                        Thread.sleep(30000);
+                }
                 break;
             case 3:
                 clearScreen();
@@ -148,7 +140,6 @@ public class SiteAlert
                     System.out.println("You haven't checked any site!");
                 break;
         }
-        while(s[0]!=null && s[0].equals("y")){}
         waitUser();
         x = choice();
     }
@@ -355,7 +346,6 @@ public class SiteAlert
   public static void sendMail(String to, String subject, String sito) throws AddressException
   {
       Properties p = new Properties();
-	  //Don't change it if you want to use gmail
       p.put("mail.smtp.host", "smtp.gmail.com");
       p.put("mail.smtp.port", "587");
       p.put("mail.smtp.auth","true");
@@ -364,14 +354,14 @@ public class SiteAlert
       {
 	public PasswordAuthentication getPasswordAuthentication()
         {
-		return new PasswordAuthentication(e-MailAddress ,e-MailPassword);
+		return new PasswordAuthentication("SiteAlertMailNotification@gmail.com" ,"SiteAlertMailNotificatio");
 	}
       };
       Session s = Session.getDefaultInstance( p , authenticator); 
       Message m = new MimeMessage(s);
       try 
       {
-          m.setFrom(new InternetAddress(sourceE-MailAddress)); //DON'T CHANGE IT
+          m.setFrom(new InternetAddress("SiteAlertMailNotification@gmail.com")); //DON'T CHANGE IT
           String[] toArray=to.split(";");
           Address[] a=new Address[toArray.length];
           int i=0;
