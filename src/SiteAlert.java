@@ -59,10 +59,11 @@ public class SiteAlert
   public static void main(String[] args) throws IOException, InterruptedException
   {
     final String separator=separator();
-    String s=new String();
+    String s,path;
     Scanner sc = new Scanner(System.in);
+    File f;
     int x = choice();
-    while(x<4)
+    while(x<5)
     {
         switch(x)
         {
@@ -71,6 +72,19 @@ public class SiteAlert
                 addSite(null, null,null,separator);
                 break;
             case 2:
+                System.out.println("Name of the site: ");
+                s=sc.nextLine();
+                path = findHome() + separator+"SiteAlert"+separator + s+separator+"sito.txt";
+                f=new File(path);
+                if(f.exists())
+                {
+                    BufferedReader br=new BufferedReader(new FileReader(f));
+                    String site=br.readLine();
+                    path=br.readLine();
+                    addSite(site,s,path,separator);
+                }
+                break;
+            case 3:
                 System.out.println("Do you want to check continually? (Y/n)");
                 while ((s=sc.nextLine()).length()==0 || ((s.charAt(0) != 'n') && (s.charAt(0) != 'y')))
                 {
@@ -93,7 +107,7 @@ public class SiteAlert
                         Thread.sleep(30000);
                 }
                 break;
-            case 3:
+            case 4:
                 clearScreen();
                 String[] dirs = findDirs(separator);
                 int length=dirs.length,i=0;
@@ -117,8 +131,8 @@ public class SiteAlert
                         }
                     }
                     while(i<1 || i>length);
-                    String path=findHome()+separator+"SiteAlert"+separator+dirs[i-1];
-                    File f=new File(path);
+                    path=findHome()+separator+"SiteAlert"+separator+dirs[i-1];
+                    f=new File(path);
                     if(f.delete())
                         System.out.println("Site successfully deleted!");
                     else
@@ -164,8 +178,8 @@ public class SiteAlert
     try
     {
       int x;
-      while ((x = sc.nextInt()) > 4)
-        if (x != 4)
+      while ((x = sc.nextInt()) > 5)
+        if (x != 5)
           visualizeMenu();
       return x;
     }
@@ -173,13 +187,13 @@ public class SiteAlert
     {
       clearScreen();
       System.out.println("Wrong input");
-      return 4;
+      return 5;
     }
   }
   public static void visualizeMenu() throws IOException
   {
       clearScreen();
-      System.out.println("What do you want to do?\n1) Add new site to check\n2) Check sites\n3) Delete a site\n4) Exit");
+      System.out.println("What do you want to do?\n1) Add new site to check\n2) Fetch the site from the config file\n3) Check sites\n4) Delete a site\n5) Exit");
   }
   public static String findHome() throws IOException 
   {
