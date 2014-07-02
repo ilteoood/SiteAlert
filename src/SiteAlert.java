@@ -59,44 +59,48 @@ public class SiteAlert
   public static void main(String[] args) throws IOException, InterruptedException
   {
     final String separator=separator();
-    int length;
     String s,path;
-    String[] dirs;
+    String[] dirs = findDirs(separator);
+    int length=dirs.length;
     Scanner sc = new Scanner(System.in);
     File f;
     int x = choice();
-    while(x<5)
+    while(x<6)
     {
+        clearScreen();
         switch(x)
         {
             case 1:
-                clearScreen();
-                addSite(null, null,null,separator);
+                displaySites(x,dirs,length);
                 break;
             case 2:
-                clearScreen();
-                dirs = findDirs(separator);
+                addSite(null, null,null,separator);
+                break;
+            case 3:
 		length=dirs.length;             
                 if(length!=0)
 		{
                     System.out.println("Write the number of the site that you want to fetch.");
-                    s=displaySites(dirs,length);
-                    path=findHome()+separator+"SiteAlert"+separator+s+separator+"sito.txt";
-                    f=new File(path);
-                    if(f.exists())
+                    s=displaySites(x,dirs,length);
+                    if(s!=null)
                     {
-                        BufferedReader br=new BufferedReader(new FileReader(f));
-			String site=br.readLine();
-			path=br.readLine();
-			addSite(site,s,path,separator);
+                        path=findHome()+separator+"SiteAlert"+separator+s+separator+"sito.txt";
+                        f=new File(path);
+                        if(f.exists())
+                        {
+                            BufferedReader br=new BufferedReader(new FileReader(f));
+                            String site=br.readLine();
+                            path=br.readLine();
+                            addSite(site,s,path,separator);
+                        }
+                        else
+                            System.out.println("No configuration file found.");
                     }
-                    else
-                        System.out.println("No configuration file found.");
                 }
                 else
                     System.out.println("You haven't any site!");
                 break;
-            case 3:
+            case 4:
                 System.out.println("Do you want to check continually? (Y/n)");
                 while ((s=sc.nextLine()).length()==0 || ((s.charAt(0) != 'n') && (s.charAt(0) != 'y')))
                 {
@@ -119,31 +123,31 @@ public class SiteAlert
                         Thread.sleep(30000);
                 }
                 break;
-            case 4:
-                clearScreen();
-                dirs = findDirs(separator);
-                length=dirs.length;
+            case 5:
                 if(length!=0)
                 {
                     System.out.println("Write the number of the site that you want to delete.");
-                    s=displaySites(dirs,length);
-                    path=findHome()+separator+"SiteAlert"+separator+s;
-                    f=new File(path);
-                    if(f.delete())
-                        System.out.println("Site successfully deleted!");
-                    else
+                    s=displaySites(x,dirs,length);
+                    if(s!=null)
                     {
-                        String[] content=f.list();
-                        for(String st:content)
-                        {
-                            f=new File(path+separator+st);
-                            f.delete();
-                        }
+                        path=findHome()+separator+"SiteAlert"+separator+s;
                         f=new File(path);
                         if(f.delete())
                             System.out.println("Site successfully deleted!");
                         else
-                            System.out.println("Something went wrong");
+                        {
+                            String[] content=f.list();
+                            for(String st:content)
+                            {
+                                f=new File(path+separator+st);
+                                f.delete();
+                            }
+                            f=new File(path);
+                            if(f.delete())
+                                System.out.println("Site successfully deleted!");
+                            else
+                                System.out.println("Something went wrong");
+                        }
                     }
                 }
                 else
@@ -174,8 +178,8 @@ public class SiteAlert
     try
     {
       int x;
-      while ((x = sc.nextInt()) > 5)
-        if (x != 5)
+      while ((x = sc.nextInt()) > 6)
+        if (x != 6)
           visualizeMenu();
       return x;
     }
@@ -189,7 +193,7 @@ public class SiteAlert
   public static void visualizeMenu() throws IOException
   {
       clearScreen();
-      System.out.println("What do you want to do?\n1) Add new site to check\n2) Fetch the site from the config file\n3) Check sites\n4) Delete a site\n5) Exit");
+      System.out.println("What do you want to do?\n1) Display sites\n2) Add new site to check\n3) Fetch a site from the config file\n4) Check sites\n5) Delete a site\n6) Exit");
   }
   public static String findHome() throws IOException 
   {
@@ -204,27 +208,33 @@ public class SiteAlert
         String[] dirs = f.list();
         return dirs;
   }
-  public static String displaySites(String[] dirs, int length)
+  public static String displaySites(int x, String[] dirs, int length)
   {
+      if(x!=1)
+          System.out.println("0) Exit");
       int i=0;
       for(i=0;i<length;i++)
           System.out.println((i+1)+") "+dirs[i]);
-      Scanner sc=new Scanner(System.in);
-      do
+      if(x!=1)
       {
-          System.out.print("Number of the site: ");
-          try
-          {
-              i=sc.nextInt();
-          }
-          catch(InputMismatchException e)
-          {
-              sc=new Scanner(System.in);
-              i=0;
-          }
+        Scanner sc=new Scanner(System.in);
+        do
+        {
+            System.out.print("Number of the site: ");
+            try
+            {
+                i=sc.nextInt();
+            }
+            catch(InputMismatchException e)
+            {
+                sc=new Scanner(System.in);
+                i=0;
+            }
+        }
+        while(i<0 || i>length);
+        return (i==0?null:dirs[i-1]);
       }
-      while(i<1 || i>length);
-      return dirs[i-1];
+      return null;
   }
   public static void addSite(String site, String nameSite,String mail,String s) throws IOException 
   {
