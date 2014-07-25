@@ -1,4 +1,5 @@
 /*
+DISCONTINUED: this project will be replaced with another one wrote in Python.
 
 SiteAlert, what are you waiting for?
 
@@ -58,7 +59,7 @@ public class SiteAlert
   @SuppressWarnings("empty-statement")
   public static void main(String[] args) throws IOException, InterruptedException
   {
-    final String separator=separator();
+    final String separator=File.separator;
     String s,path;
     String[] dirs = findDirs(separator);
     int length=dirs.length;
@@ -91,6 +92,7 @@ public class SiteAlert
                             BufferedReader br=new BufferedReader(new FileReader(f));
                             String site=br.readLine();
                             path=br.readLine();
+                            br.close();
                             addSite(site,s,path,separator);
                         }
                         else
@@ -149,6 +151,7 @@ public class SiteAlert
                                 System.out.println("Something went wrong");
                         }
                     }
+                    
                 }
                 else
                     System.out.println("You haven't checked any site!");
@@ -187,7 +190,7 @@ public class SiteAlert
     {
       clearScreen();
       System.out.println("Wrong input");
-      return 5;
+      return 6;
     }
   }
   public static void visualizeMenu() throws IOException
@@ -271,8 +274,6 @@ public class SiteAlert
           else
             saveFile(path + s+"sito.txt",sito,email,http);
         }
-        else if(site ==null && nameSite==null)
-            System.out.println("Name already used!");
         else
             saveFile(path + s+"sito.txt",sito,email,http);
       }
@@ -346,6 +347,7 @@ public class SiteAlert
                           }
                       }
                   }
+                  br.close();
               }
               catch (IOException e)
               {
@@ -376,13 +378,6 @@ public class SiteAlert
             fw.flush();
             fw.close();
             System.out.println("Site saved correctly!");
-  }
-  public static String separator()
-  {
-      if(System.getProperty("os.name").contains("Windows"))
-          return "\\";
-      else
-          return "/";
   }
   public static void sendMail(String to, String subject, String sito) throws AddressException
   {

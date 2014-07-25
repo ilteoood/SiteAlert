@@ -1,3 +1,5 @@
+DISCONTINUED: this project will be replaced with another one wrote in Python.
+
 SiteAlert
 =========
 
